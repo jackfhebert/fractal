@@ -1,2 +1,6 @@
-Hope to render mandelbrot as a png and save to disk.
-Can figure out rendering to a gui later.
+Renders mandelbrot fractal to an image on disk.
+Has a flag to control how many pixels to render.
+Not the prettiest, but it works.
+
+The next thing I would try to clean up is better colors, after that
+probably figure out a GUI so that I can have zooming.

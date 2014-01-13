@@ -6,6 +6,7 @@ Nothing special.
 package main
 
 import (
+       "flag"
        "image"
        "image/color"
        "image/png"
@@ -17,16 +18,16 @@ import (
 
 var (
   // How dense do we want our pixels? n^2 slow down here.
-  factor int = 1024
+  factor *int = flag.Int("pixel_density", 1024, "how many pixels wide to make the image")
   // 4 since we are running from -2 to 2.
-  numSteps float64 = float64(4 * factor)
+  numSteps float64 = float64(4 * *factor)
 )
 
 func RenderFractal() image.Image {
   // Logical bounds are [-2, 2], but we want lots of pixels.
   minX, maxX, minY, maxY := -2, 2, -2, 2
-  image := image.NewNRGBA(image.Rect(factor * minX, factor * minY,
-  factor * maxX, factor * maxY))
+  image := image.NewNRGBA(image.Rect(*factor * minX, *factor * minY,
+  *factor * maxX, *factor * maxY))
 
   // 1 step per pixel.
   xStepSize := float64(maxX - minX) / numSteps
@@ -36,8 +37,8 @@ func RenderFractal() image.Image {
   for currX := float64(-2); currX < float64(2); currX += xStepSize {
     for currY := float64(-2); currY < float64(2); currY += yStepSize {
       currColor := GetColor(currX, currY)
-      image.SetNRGBA(int(float64(factor) * currX),
-                     int(float64(factor) * currY), currColor)
+      image.SetNRGBA(int(float64(*factor) * currX),
+                     int(float64(*factor) * currY), currColor)
     }
   }
 
@@ -72,6 +73,7 @@ func SaveImage(image image.Image) {
 }
 
 func main() {
+     flag.Parse()
      // Hard work, compute the image.
      image := RenderFractal()
      // Save it out to disk.

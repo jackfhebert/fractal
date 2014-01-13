@@ -4,41 +4,45 @@ import (
        "image"
        "image/color"
        "image/png"
+       "math"
        "math/cmplx"
        "log"
        "os"
 )
 
 var (
-  numSteps int = 1024
+  factor int = 1024
+  numSteps float64 = float64(4 * factor)
 )
 
 func RenderFractal() image.Image {
-  minX, maxX, minY, maxY := -512, 512, -512, 512
-  image := image.NewNRGBA(image.Rect(minX, minY, maxX, maxY))
+  minX, maxX, minY, maxY := -2, 2, -2, 2
+  image := image.NewNRGBA(image.Rect(factor * minX, factor * minY,
+  factor * maxX, factor * maxY))
 
-  xStepSize := (maxX - minX) / numSteps
-  yStepSize := (maxY - minY) / numSteps
+  xStepSize := float64(maxX - minX) / numSteps
+  yStepSize := float64(maxY - minY) / numSteps
 
-  for currX := minX; currX < maxX; currX += xStepSize {
-    for currY := minY; currY < maxY; currY += yStepSize {
+  for currX := float64(-2); currX < float64(2); currX += xStepSize {
+    for currY := float64(-2); currY < float64(2); currY += yStepSize {
       currColor := GetColor(currX, currY)
-      image.SetNRGBA(int(currX), int(currY), currColor)
+      image.SetNRGBA(int(float64(factor) * currX), int(float64(factor) * currY), currColor)
     }
   }
 
   return image
 }
 
-func GetColor(x, y int) color.NRGBA {
-  z := complex(float64(x) / 256.0, float64(y) / 256)
+func GetColor(x, y float64) color.NRGBA {
+  z := complex(x, y)
   c := z
   steps := 0
-  for ; steps < 127 && cmplx.Abs(z) < 2; steps += 1 {
+  for ; steps < 255 && cmplx.Abs(z) < 2; steps += 1 {
     z = z * z + c
   }
+  colorStep := 128 - int(math.Log(float64(x)))
 
- return color.NRGBA{uint8(steps), 127, 127, 127}
+ return color.NRGBA{uint8(colorStep), 128 - uint8(steps % 128), 127, 128}
 }
 
 func SaveImage(image image.Image) {
